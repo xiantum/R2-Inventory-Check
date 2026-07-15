@@ -1,0 +1,8 @@
+{
+  "name": "BKK2 INVENTORY CHECK",
+  "description": "A mobile stock inspection application prototype with a 6-step workflow for branch users including material inspection, quantity logging, and photo uploads.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
