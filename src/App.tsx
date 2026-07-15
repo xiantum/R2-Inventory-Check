@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Camera, 
   Upload, 
@@ -56,6 +56,14 @@ const MOCK_PHOTOS = [
   'https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=400&q=80'  // Cabinet
 ];
 
+// Calendar Constants for Selection Screen
+const MONTHS = [
+  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+];
+
+const YEARS = ['2567', '2568', '2569', '2570', '2571', '2572'];
+
 export default function App() {
   // Mobile Screen State (1 - 5)
   const [step, setStep] = useState<number>(1);
@@ -64,6 +72,16 @@ export default function App() {
   const [inspectorName, setInspectorName] = useState<string>('');
   const [branch, setBranch] = useState<string>('PDT');
   const [round, setRound] = useState<string>('มิถุนายน 2569');
+
+  // New Calendar Selection States
+  const [selectedMonth, setSelectedMonth] = useState<string>('มิถุนายน');
+  const [selectedYear, setSelectedYear] = useState<string>('2569');
+  const [activePicker, setActivePicker] = useState<'month' | 'year' | null>(null);
+
+  // Sync round with selected month and year
+  useEffect(() => {
+    setRound(`${selectedMonth} ${selectedYear}`);
+  }, [selectedMonth, selectedYear]);
   
   // Materials state (initially populated when moving to screen 3)
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -191,6 +209,9 @@ export default function App() {
     setInspectorName('');
     setBranch('PDT');
     setRound('มิถุนายน 2569');
+    setSelectedMonth('มิถุนายน');
+    setSelectedYear('2569');
+    setActivePicker(null);
     setMaterials([]);
     setCurrentQtyIndex(0);
     setShowSummaryModal(false);
@@ -321,27 +342,27 @@ export default function App() {
                 </div>
 
                 {/* Fields Body */}
-                <div className="flex-1 p-6 space-y-6">
+                <div className="flex-1 p-5 space-y-4 overflow-y-auto select-none">
                   
                   {/* Current Active Inspector */}
-                  <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#0B3C1E]/10 flex items-center justify-center text-[#0B3C1E]">
-                      <User className="w-5 h-5" />
+                  <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#0B3C1E]/10 flex items-center justify-center text-[#0B3C1E] shrink-0">
+                      <User className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">ผู้ตรวจสอบ</p>
-                      <p className="text-sm font-bold text-slate-800">{inspectorName || '555'}</p>
+                      <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">ผู้ตรวจสอบ</p>
+                      <p className="text-xs font-bold text-slate-800">{inspectorName || 'ผู้ตรวจนับทั่วไป'}</p>
                     </div>
                   </div>
 
                   {/* Dropdown 1: เลือกสาขา */}
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">
                       เลือกสาขา
                     </label>
                     <select 
                       id="branch_select"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 px-4 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B3C1E] transition-all"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B3C1E] transition-all"
                       value={branch}
                       onChange={(e) => setBranch(e.target.value)}
                     >
@@ -358,28 +379,48 @@ export default function App() {
                     </select>
                   </div>
 
-                  {/* Dropdown 2: เลือกรอบตรวจ */}
+                  {/* 2 Selectors: เดือน / ปี */}
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
-                      เลือกรอบตรวจ
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">
+                      เลือกเดือนที่ตรวจ
                     </label>
-                    <select 
-                      id="round_select"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 px-4 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B3C1E] transition-all"
-                      value={round}
-                      onChange={(e) => setRound(e.target.value)}
-                    >
-                      <option value="มิถุนายน 2569">มิถุนายน 2569</option>
-                      <option value="พฤษภาคม 2569">พฤษภาคม 2569</option>
-                      <option value="เมษายน 2569">เมษายน 2569</option>
-                      <option value="มีนาคม 2569">มีนาคม 2569</option>
-                      <option value="กุมภาพันธ์ 2569">กุมภาพันธ์ 2569</option>
-                      <option value="มกราคม 2569">มกราคม 2569</option>
-                      <option value="ธันวาคม 2568">ธันวาคม 2568</option>
-                      <option value="พฤศจิกายน 2568">พฤศจิกายน 2568</option>
-                      <option value="ตุลาคม 2568">ตุลาคม 2568</option>
-                      <option value="กันยายน 2568">กันยายน 2568</option>
-                    </select>
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Month Selector */}
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-400 mb-1">เดือน</span>
+                        <button
+                          type="button"
+                          onClick={() => setActivePicker('month')}
+                          className="w-full bg-white border-2 border-[#0B3C1E]/10 hover:border-[#0B3C1E]/30 rounded-xl py-2.5 px-3 flex items-center justify-between text-xs font-bold text-[#0B3C1E] transition-all shadow-xs active:scale-98"
+                        >
+                          <span>{selectedMonth}</span>
+                          <span className="text-[#E0A926] text-[10px] font-serif">▼</span>
+                        </button>
+                      </div>
+
+                      {/* Year Selector */}
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-400 mb-1">ปี</span>
+                        <button
+                          type="button"
+                          onClick={() => setActivePicker('year')}
+                          className="w-full bg-white border-2 border-[#0B3C1E]/10 hover:border-[#0B3C1E]/30 rounded-xl py-2.5 px-3 flex items-center justify-between text-xs font-bold text-[#0B3C1E] transition-all shadow-xs active:scale-98"
+                        >
+                          <span>{selectedYear}</span>
+                          <span className="text-[#E0A926] text-[10px] font-serif">▼</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Summary Card */}
+                  <div className="bg-[#0B3C1E]/5 border border-[#0B3C1E]/10 p-3.5 rounded-xl space-y-1 shadow-xs">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                      เดือนที่ตรวจ:
+                    </span>
+                    <span className="text-xs font-extrabold text-[#0B3C1E] block">
+                      {selectedMonth} {selectedYear}
+                    </span>
                   </div>
 
                 </div>
@@ -403,6 +444,91 @@ export default function App() {
                     <ChevronRight className="w-4 h-4 text-[#E0A926]" />
                   </button>
                 </div>
+
+                {/* Popover Selection Overlays */}
+                <AnimatePresence>
+                  {activePicker && (
+                    <motion.div
+                      key="picker-overlay"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-40 flex flex-col justify-end"
+                      onClick={() => setActivePicker(null)}
+                    >
+                      <motion.div
+                        key="picker-panel"
+                        initial={{ y: "100%" }}
+                        animate={{ y: 0 }}
+                        exit={{ y: "100%" }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        className="bg-white rounded-t-[32px] p-5 pb-8 max-h-[60%] flex flex-col shadow-2xl overflow-hidden cursor-default"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {/* Header */}
+                        <div className="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
+                          <span className="text-sm font-extrabold text-[#0B3C1E]">
+                            {activePicker === 'month' ? 'เลือกเดือนที่ตรวจสอบ' : 'เลือกปีที่ตรวจสอบ'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setActivePicker(null)}
+                            className="p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* Options Container */}
+                        <div className="grid grid-cols-2 gap-2 overflow-y-auto pr-1">
+                          {activePicker === 'month' ? (
+                            MONTHS.map((m) => {
+                              const isSelected = selectedMonth === m;
+                              return (
+                                <button
+                                  key={m}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedMonth(m);
+                                    setActivePicker(null);
+                                  }}
+                                  className={`py-3 px-3 rounded-xl font-bold text-xs text-center transition-all border ${
+                                    isSelected
+                                      ? 'bg-white border-2 border-[#0B3C1E] text-[#0B3C1E] ring-2 ring-[#E0A926]/30 shadow-xs'
+                                      : 'bg-slate-50 text-slate-700 border-slate-200/50 hover:bg-slate-100'
+                                  }`}
+                                >
+                                  {m}
+                                </button>
+                              );
+                            })
+                          ) : (
+                            YEARS.map((y) => {
+                              const isSelected = selectedYear === y;
+                              return (
+                                <button
+                                  key={y}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedYear(y);
+                                    setActivePicker(null);
+                                  }}
+                                  className={`py-3 px-3 rounded-xl font-bold text-xs text-center transition-all border ${
+                                    isSelected
+                                      ? 'bg-white border-2 border-[#0B3C1E] text-[#0B3C1E] ring-2 ring-[#E0A926]/30 shadow-xs'
+                                      : 'bg-slate-50 text-slate-700 border-slate-200/50 hover:bg-slate-100'
+                                  }`}
+                                >
+                                  {y}
+                                </button>
+                              );
+                            })
+                          )}
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
 
